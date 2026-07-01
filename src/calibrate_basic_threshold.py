@@ -1,5 +1,5 @@
 """
-Calibrate anomaly thresholds for the baseline autoencoder.
+Calibrate anomaly thresholds for the basic autoencoder.
 """
 
 import json
@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
-from train_baseline_autoencoder import (BATCH_SIZE, DATA_PATH, MODEL_PATH, BaselineAutoencoder,)
+from train_final_basic_autoencoder import DATA_PATH, MODEL_PATH, load_trained_model
 
 # threshold settings
 PRIMARY_THRESHOLD_PERCENTILE = 95.0
@@ -17,7 +17,7 @@ THRESHOLD_PERCENTILES = [90.0, 95.0, 97.5, 99.0]
 # paths
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
-THRESHOLD_PATH = ARTIFACTS_DIR / "thresholds" / "baseline_threshold.json"
+THRESHOLD_PATH = ARTIFACTS_DIR / "thresholds" / "basic_threshold.json"
 
 
 def reconstruction_errors(model: torch.nn.Module, x: np.ndarray, batch_size: int, device: torch.device,) -> np.ndarray:
@@ -62,16 +62,15 @@ def calibrate_threshold() -> None:
     # if using gpu
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # load autoencoder
-    checkpoint = torch.load(MODEL_PATH, map_location=device)
-    model = BaselineAutoencoder(input_dim=checkpoint["input_dim"]).to(device)
-    model.load_state_dict(checkpoint["model_state_dict"])
+    # Load the final trained autoencoder. The checkpoint stores the architecture
+    # chosen during configuration selection, so calibration uses the final model.
+    model, checkpoint, config = load_trained_model(MODEL_PATH, device)
 
     # load normal data
     x_calibration = np.load(DATA_PATH, allow_pickle=False)["X_calibration_normal"].astype(np.float32)
 
     # compute reconstruction errors on normal calibration samples
-    errors = reconstruction_errors(model, x_calibration, BATCH_SIZE, device)
+    errors = reconstruction_errors(model, x_calibration, config.batch_size, device)
     error_mean = float(errors.mean())
     error_std = float(errors.std())
 
@@ -81,11 +80,13 @@ def calibrate_threshold() -> None:
         for percentile in THRESHOLD_PERCENTILES
     }
 
-    # use p95 as the main threshold for the baseline result
+    # use p95 as the main threshold for the basic result
     primary_key = threshold_key(PRIMARY_THRESHOLD_PERCENTILE)
     primary_threshold = percentile_thresholds[primary_key]["threshold"]
 
     threshold_info = {
+        "model_path": str(MODEL_PATH),
+        "model_config": checkpoint.get("config", {}),
         "primary_threshold_method": "percentile",
         "primary_threshold_key": primary_key,
         "primary_threshold_percentile": PRIMARY_THRESHOLD_PERCENTILE,
@@ -101,8 +102,7 @@ def calibrate_threshold() -> None:
     }
     save_threshold(threshold_info)
 
-    print(f"Device: {device}")
-    print(f"Calibration samples: {x_calibration.shape[0]}")
+
     print("Percentile thresholds:")
     for key, value in percentile_thresholds.items():
         print(f"  {key}: {value['threshold']:.8f}")

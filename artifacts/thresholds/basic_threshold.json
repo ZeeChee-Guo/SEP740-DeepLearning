@@ -1,0 +1,46 @@
+{
+  "model_path": "C:\\Users\\Gzq\\Desktop\\deep learning project\\artifacts\\models\\basic_autoencoder.pt",
+  "model_config": {
+    "name": "wider_width_latent16_lr0p001",
+    "hidden_dims": [
+      64,
+      32
+    ],
+    "latent_dim": 16,
+    "batch_size": 512,
+    "learning_rate": 0.001,
+    "weight_decay": 1e-05,
+    "max_epochs": 45,
+    "patience": 8,
+    "min_delta": 1e-06
+  },
+  "primary_threshold_method": "percentile",
+  "primary_threshold_key": "p95",
+  "primary_threshold_percentile": 95.0,
+  "primary_threshold": 0.013254714198410511,
+  "percentile_thresholds": {
+    "p90": {
+      "percentile": 90.0,
+      "threshold": 0.004148309584707022
+    },
+    "p95": {
+      "percentile": 95.0,
+      "threshold": 0.013254714198410511
+    },
+    "p97_5": {
+      "percentile": 97.5,
+      "threshold": 0.01581314019858837
+    },
+    "p99": {
+      "percentile": 99.0,
+      "threshold": 0.02565603516995907
+    }
+  },
+  "calibration_samples": 13175,
+  "calibration_error_summary": {
+    "mean": 0.001942340051755309,
+    "std": 0.005334924906492233,
+    "min": 1.555901144456584e-05,
+    "max": 0.09148483723402023
+  }
+}

@@ -6,17 +6,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import average_precision_score, precision_recall_curve
 
-from evaluate_baseline_autoencoder import (
+from evaluate_basic_autoencoder import (
     ERRORS_PATH,
     METRICS_JSON_PATH,
     THRESHOLD_PATH,
 )
-from train_baseline_autoencoder import HISTORY_PATH
+from train_final_basic_autoencoder import HISTORY_PATH
 
 
 # paths
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-FIGURE_DIR = PROJECT_ROOT / "artifacts" / "figures" / "baseline_autoencoder"
+FIGURE_DIR = PROJECT_ROOT / "artifacts" / "figures" / "basic_autoencoder"
 FIGURE_DPI = 220
 
 
@@ -49,7 +49,7 @@ def save_training_curve() -> None:
     plt.plot(epochs, validation_losses, label="Validation normal")
     plt.xlabel("Epoch")
     plt.ylabel("Mean squared reconstruction error")
-    plt.title("Baseline Autoencoder Training Curve")
+    plt.title("Basic Autoencoder Training Curve")
     plt.legend()
     plt.tight_layout()
     output_path = FIGURE_DIR / "training_curve.png"

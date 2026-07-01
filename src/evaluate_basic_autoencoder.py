@@ -1,5 +1,5 @@
 """
-Evaluate the baseline autoencoder anomaly detector.
+Evaluate the basic autoencoder anomaly detector.
 """
 
 import csv
@@ -9,20 +9,19 @@ from typing import Any
 import numpy as np
 import torch
 from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score, precision_score, recall_score,)
-from torch.nn.functional import threshold
 from torch.utils.data import DataLoader, TensorDataset
 
-from train_baseline_autoencoder import (BATCH_SIZE, DATA_PATH, MODEL_PATH, BaselineAutoencoder,)
+from train_final_basic_autoencoder import DATA_PATH, MODEL_PATH, load_trained_model
 
 
 # paths
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
-THRESHOLD_PATH = ARTIFACTS_DIR / "thresholds" / "baseline_threshold.json"
+THRESHOLD_PATH = ARTIFACTS_DIR / "thresholds" / "basic_threshold.json"
 EVALUATION_DIR = ARTIFACTS_DIR / "evaluation"
-METRICS_CSV_PATH = EVALUATION_DIR / "baseline_metrics.csv"
-METRICS_JSON_PATH = EVALUATION_DIR / "baseline_metrics.json"
-ERRORS_PATH = EVALUATION_DIR / "baseline_reconstruction_errors.npz"
+METRICS_CSV_PATH = EVALUATION_DIR / "basic_metrics.csv"
+METRICS_JSON_PATH = EVALUATION_DIR / "basic_metrics.json"
+ERRORS_PATH = EVALUATION_DIR / "basic_reconstruction_errors.npz"
 
 
 def reconstruction_errors(model: torch.nn.Module,x: np.ndarray, batch_size: int, device: torch.device, ) -> np.ndarray:
@@ -194,11 +193,9 @@ def evaluate() -> None:
     # if using gpu
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # load trained baseline autoencoder
-    checkpoint = torch.load(MODEL_PATH, map_location=device)
-    model = BaselineAutoencoder(input_dim=checkpoint["input_dim"]).to(device)
-    model.load_state_dict(checkpoint["model_state_dict"])
-    model.eval()
+    # Load the final trained autoencoder. The checkpoint stores the selected
+    # architecture, so evaluation always matches the tuned final model.
+    model, checkpoint, config = load_trained_model(MODEL_PATH, device)
 
     # load calibrated thresholds
     with THRESHOLD_PATH.open("r", encoding="utf-8") as file:
@@ -212,8 +209,8 @@ def evaluate() -> None:
     anomaly_categories = data["anomaly_categories"].astype(str)
 
     # compute reconstruction errors
-    normal_errors = reconstruction_errors(model, x_normal, BATCH_SIZE, device)
-    anomaly_errors = reconstruction_errors(model, x_anomaly, BATCH_SIZE, device)
+    normal_errors = reconstruction_errors(model, x_normal, config.batch_size, device)
+    anomaly_errors = reconstruction_errors(model, x_anomaly, config.batch_size, device)
 
     scores = np.concatenate([normal_errors, anomaly_errors])
     y_true = np.concatenate(
@@ -228,6 +225,7 @@ def evaluate() -> None:
     primary_result = next(result for result in results if result["threshold_key"] == primary_key)
     output_summary = {
         "model_path": str(MODEL_PATH),
+        "model_config": checkpoint.get("config", {}),
         "threshold_path": str(THRESHOLD_PATH),
         "normal_source": "X_calibration_normal",
         "anomaly_source": "X_anomaly_reference",
@@ -252,9 +250,7 @@ def evaluate() -> None:
     save_metrics(results, output_summary)
     save_errors(normal_errors, anomaly_errors, anomaly_categories, scores, y_true)
 
-    print(f"Device: {device}")
-    print(f"Normal samples: {normal_errors.shape[0]}")
-    print(f"Anomaly samples: {anomaly_errors.shape[0]}")
+
     print("Threshold comparison:")
     for result in results:
         primary_marker = " (primary)" if result["is_primary"] else ""
