@@ -1,0 +1,112 @@
+[
+  {
+    "beta": 0.0,
+    "best_validation_reconstruction": 0.003861249519805415,
+    "final_validation_sparsity": 113.53750882867165,
+    "true_normal_pred_normal": 12516,
+    "true_normal_pred_anomaly": 659,
+    "true_anomaly_pred_normal": 806,
+    "true_anomaly_pred_anomaly": 56945,
+    "precision": 0.9885598222345671,
+    "recall": 0.9860435317137366,
+    "f1": 0.9873000736855793,
+    "accuracy": 0.9793446690917295,
+    "false_positive_rate": 0.05001897533206831,
+    "specificity": 0.9499810246679317,
+    "threshold": 0.016310464590787888,
+    "category_recall": {
+      "DoS": 0.9866595810961866,
+      "Probe": 0.986378581493659,
+      "R2L": 0.950950950950951,
+      "U2R": 1.0
+    }
+  },
+  {
+    "beta": 0.0001,
+    "best_validation_reconstruction": 0.005416888484812608,
+    "final_validation_sparsity": 3.2661625525892575,
+    "true_normal_pred_normal": 12516,
+    "true_normal_pred_anomaly": 659,
+    "true_anomaly_pred_normal": 955,
+    "true_anomaly_pred_anomaly": 56796,
+    "precision": 0.9885301540335915,
+    "recall": 0.9834634898097002,
+    "f1": 0.985990313004531,
+    "accuracy": 0.9772438879959394,
+    "false_positive_rate": 0.05001897533206831,
+    "specificity": 0.9499810246679317,
+    "threshold": 0.02149038203060627,
+    "category_recall": {
+      "DoS": 0.9843323376885159,
+      "Probe": 0.9826209488022546,
+      "R2L": 0.93993993993994,
+      "U2R": 0.9423076923076923
+    }
+  },
+  {
+    "beta": 0.001,
+    "best_validation_reconstruction": 0.004505062507398328,
+    "final_validation_sparsity": 0.13275597508424147,
+    "true_normal_pred_normal": 12516,
+    "true_normal_pred_anomaly": 659,
+    "true_anomaly_pred_normal": 1128,
+    "true_anomaly_pred_anomaly": 56623,
+    "precision": 0.9884955134248106,
+    "recall": 0.9804678706862219,
+    "f1": 0.98446532734085,
+    "accuracy": 0.9748047260525055,
+    "false_positive_rate": 0.05001897533206831,
+    "specificity": 0.9499810246679317,
+    "threshold": 0.019999181851744652,
+    "category_recall": {
+      "DoS": 0.9872459731359147,
+      "Probe": 0.9887271019257867,
+      "R2L": 0.5925925925925926,
+      "U2R": 0.9807692307692307
+    }
+  },
+  {
+    "beta": 0.01,
+    "best_validation_reconstruction": 0.004837688709409515,
+    "final_validation_sparsity": 0.003263002498061228,
+    "true_normal_pred_normal": 12516,
+    "true_normal_pred_anomaly": 659,
+    "true_anomaly_pred_normal": 765,
+    "true_anomaly_pred_anomaly": 56986,
+    "precision": 0.9885679590597624,
+    "recall": 0.9867534761302834,
+    "f1": 0.9876598842247565,
+    "accuracy": 0.9799227363731213,
+    "false_positive_rate": 0.05001897533206831,
+    "specificity": 0.9499810246679317,
+    "threshold": 0.02067081443965435,
+    "category_recall": {
+      "DoS": 0.9871726741309487,
+      "Probe": 0.9938938468764679,
+      "R2L": 0.948948948948949,
+      "U2R": 0.9807692307692307
+    }
+  },
+  {
+    "beta": 0.1,
+    "best_validation_reconstruction": 0.0071395279758342985,
+    "final_validation_sparsity": 0.0014355486912955044,
+    "true_normal_pred_normal": 12516,
+    "true_normal_pred_anomaly": 659,
+    "true_anomaly_pred_normal": 822,
+    "true_anomaly_pred_anomaly": 56929,
+    "precision": 0.9885566437452247,
+    "recall": 0.9857664802341085,
+    "f1": 0.9871595904247479,
+    "accuracy": 0.9791190818599668,
+    "false_positive_rate": 0.05001897533206831,
+    "specificity": 0.9499810246679317,
+    "threshold": 0.029216274619102478,
+    "category_recall": {
+      "DoS": 0.9867878543548771,
+      "Probe": 0.9661813057773603,
+      "R2L": 0.9719719719719719,
+      "U2R": 0.9807692307692307
+    }
+  }
+]

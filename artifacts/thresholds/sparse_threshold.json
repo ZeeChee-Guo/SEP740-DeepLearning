@@ -1,0 +1,31 @@
+{
+  "primary_threshold_method": "percentile",
+  "primary_threshold_key": "p95",
+  "primary_threshold_percentile": 95.0,
+  "primary_threshold": 0.020548298954963684,
+  "percentile_thresholds": {
+    "p90": {
+      "percentile": 90.0,
+      "threshold": 0.013408895581960678
+    },
+    "p95": {
+      "percentile": 95.0,
+      "threshold": 0.020548298954963684
+    },
+    "p97_5": {
+      "percentile": 97.5,
+      "threshold": 0.030259080231189728
+    },
+    "p99": {
+      "percentile": 99.0,
+      "threshold": 0.044722817838191986
+    }
+  },
+  "calibration_samples": 13175,
+  "calibration_error_summary": {
+    "mean": 0.004847951233386993,
+    "std": 0.009000635705888271,
+    "min": 5.1271119446028024e-05,
+    "max": 0.15099327266216278
+  }
+}
