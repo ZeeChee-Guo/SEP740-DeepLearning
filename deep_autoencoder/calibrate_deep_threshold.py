@@ -1,5 +1,5 @@
 """
-Calibrate anomaly thresholds for the basic autoencoder.
+Calibrate anomaly thresholds for the deep autoencoder.
 """
 
 import json
@@ -54,9 +54,7 @@ def save_threshold(threshold_info: dict[str, object]) -> None:
 
 
 def calibrate_threshold() -> None:
-    # Load the final trained autoencoder directly, same pattern as
-    # calibrate_sparse_threshold.py: read input_dim from the saved checkpoint,
-    # rebuild the model with the predefined architecture, then load weights.
+    # Load the final trained autoencoder directly
     config_path = MODEL_PATH.with_suffix(".json")
     with config_path.open("r", encoding="utf-8") as file:
         checkpoint = json.load(file)
@@ -78,7 +76,7 @@ def calibrate_threshold() -> None:
         for percentile in THRESHOLD_PERCENTILES
     }
 
-    # use p95 as the main threshold for the basic result
+    # use p95 as the main threshold for the result
     primary_key = threshold_key(PRIMARY_THRESHOLD_PERCENTILE)
     primary_threshold = percentile_thresholds[primary_key]["threshold"]
 
