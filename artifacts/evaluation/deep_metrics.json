@@ -1,0 +1,142 @@
+{
+  "model_path": "/Users/anhhoang/Documents/Deep_learning_proj/SEP740-DeepLearning/artifacts/models/deep_autoencoder.weights.h5",
+  "threshold_path": "/Users/anhhoang/Documents/Deep_learning_proj/SEP740-DeepLearning/artifacts/thresholds/deep_threshold.json",
+  "normal_source": "X_calibration_normal",
+  "anomaly_source": "X_anomaly_reference",
+  "normal_samples": 13175,
+  "anomaly_samples": 57751,
+  "category_names": [
+    "DoS",
+    "Probe",
+    "R2L",
+    "U2R"
+  ],
+  "primary_threshold_key": "p95",
+  "primary_result": {
+    "threshold_key": "p95",
+    "method": "percentile",
+    "percentile": 95.0,
+    "threshold": 0.016630049794912338,
+    "is_primary": true,
+    "true_normal_pred_normal": 12516,
+    "true_normal_pred_anomaly": 659,
+    "true_anomaly_pred_normal": 1345,
+    "true_anomaly_pred_anomaly": 56406,
+    "precision": 0.9884517655305354,
+    "recall": 0.9767103599937663,
+    "f1": 0.9825459866220736,
+    "accuracy": 0.9717451992217241,
+    "false_positive_rate": 0.05001897533206831,
+    "specificity": 0.9499810246679317,
+    "category_recall": {
+      "DoS": 0.9849737039819685,
+      "Probe": 0.9844997651479568,
+      "R2L": 0.5105105105105106,
+      "U2R": 0.9423076923076923
+    }
+  },
+  "threshold_results": [
+    {
+      "threshold_key": "p90",
+      "method": "percentile",
+      "percentile": 90.0,
+      "threshold": 0.014444290660321712,
+      "is_primary": false,
+      "true_normal_pred_normal": 11857,
+      "true_normal_pred_anomaly": 1318,
+      "true_anomaly_pred_normal": 785,
+      "true_anomaly_pred_anomaly": 56966,
+      "precision": 0.9773865898016608,
+      "recall": 0.9864071617807484,
+      "f1": 0.981876158055759,
+      "accuracy": 0.9703493782251924,
+      "false_positive_rate": 0.10003795066413662,
+      "specificity": 0.8999620493358633,
+      "category_recall": {
+        "DoS": 0.986274761320115,
+        "Probe": 0.9887271019257867,
+        "R2L": 0.990990990990991,
+        "U2R": 0.9423076923076923
+      }
+    },
+    {
+      "threshold_key": "p95",
+      "method": "percentile",
+      "percentile": 95.0,
+      "threshold": 0.016630049794912338,
+      "is_primary": true,
+      "true_normal_pred_normal": 12516,
+      "true_normal_pred_anomaly": 659,
+      "true_anomaly_pred_normal": 1345,
+      "true_anomaly_pred_anomaly": 56406,
+      "precision": 0.9884517655305354,
+      "recall": 0.9767103599937663,
+      "f1": 0.9825459866220736,
+      "accuracy": 0.9717451992217241,
+      "false_positive_rate": 0.05001897533206831,
+      "specificity": 0.9499810246679317,
+      "category_recall": {
+        "DoS": 0.9849737039819685,
+        "Probe": 0.9844997651479568,
+        "R2L": 0.5105105105105106,
+        "U2R": 0.9423076923076923
+      }
+    },
+    {
+      "threshold_key": "p97_5",
+      "method": "percentile",
+      "percentile": 97.5,
+      "threshold": 0.024277353659272194,
+      "is_primary": false,
+      "true_normal_pred_normal": 12845,
+      "true_normal_pred_anomaly": 330,
+      "true_anomaly_pred_normal": 1480,
+      "true_anomaly_pred_anomaly": 56271,
+      "precision": 0.9941697143160014,
+      "recall": 0.9743727381344046,
+      "f1": 0.9841716804253533,
+      "accuracy": 0.9744804444068466,
+      "false_positive_rate": 0.025047438330170778,
+      "specificity": 0.9749525616698292,
+      "category_recall": {
+        "DoS": 0.9841857396785839,
+        "Probe": 0.9704086425551902,
+        "R2L": 0.46546546546546547,
+        "U2R": 0.6153846153846154
+      }
+    },
+    {
+      "threshold_key": "p99",
+      "method": "percentile",
+      "percentile": 99.0,
+      "threshold": 0.03052445873618126,
+      "is_primary": false,
+      "true_normal_pred_normal": 13043,
+      "true_normal_pred_anomaly": 132,
+      "true_anomaly_pred_normal": 2136,
+      "true_anomaly_pred_anomaly": 55615,
+      "precision": 0.9976321595780939,
+      "recall": 0.9630136274696542,
+      "f1": 0.980017269026767,
+      "accuracy": 0.9680230098976398,
+      "false_positive_rate": 0.010018975332068311,
+      "specificity": 0.9899810246679317,
+      "category_recall": {
+        "DoS": 0.9748584412966594,
+        "Probe": 0.9328323156411461,
+        "R2L": 0.3993993993993994,
+        "U2R": 0.5961538461538461
+      }
+    }
+  ],
+  "error_summary": {
+    "normal_mean": 0.0045990850776433945,
+    "normal_std": 0.007819138467311859,
+    "normal_min": 1.2762342521455139e-05,
+    "normal_max": 0.08891499042510986,
+    "anomaly_mean": 0.14087946712970734,
+    "anomaly_std": 0.038852494210004807,
+    "anomaly_min": 0.0004900794010609388,
+    "anomaly_max": 0.20760294795036316
+  }
+}
