@@ -188,9 +188,7 @@ def save_errors(
 
 
 def evaluate() -> None:
-    # Load the final trained autoencoder directly, same pattern as
-    # evaluate_sparse_autoencoder.py: read input_dim from the saved checkpoint,
-    # rebuild the model with the predefined architecture, then load weights.
+    # Load the final trained autoencoder directly
     config_path = MODEL_PATH.with_suffix(".json")
     with config_path.open("r", encoding="utf-8") as file:
         checkpoint = json.load(file)
