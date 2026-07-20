@@ -6,13 +6,17 @@ Model structure
 Input features dim: 74
 Encoder:
     Linear(74 -> 64) -> ReLU
-    Linear(64 -> 32) -> ReLU
-    Linear(32 -> 16) -> ReLU
+    Linear(64 -> 48) -> ReLU
+    Linear(48 -> 32) -> ReLU
+    Linear(32 -> 24) -> ReLU
+    Linear(24 -> 16) -> ReLU
 Latent space:
     16 dims
 Decoder:
-    Linear(16 -> 32) -> ReLU
-    Linear(32 -> 64) -> ReLU
+    Linear(16 -> 24) -> ReLU
+    Linear(24 -> 32) -> ReLU
+    Linear(32 -> 48) -> ReLU
+    Linear(48 -> 64) -> ReLU
     Linear(64 -> 74) -> Sigmoid
 
 """
@@ -20,7 +24,6 @@ Decoder:
 import csv
 import json
 import random
-from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
@@ -33,32 +36,19 @@ ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
 DATA_PATH = ARTIFACTS_DIR / "kdd99_preprocessed_data.npz"
 MODEL_PATH = ARTIFACTS_DIR / "models" / "deep_autoencoder.weights.h5"
 HISTORY_PATH = ARTIFACTS_DIR / "training_history" / "deep_autoencoder_history.csv"
-BEST_CONFIG_PATH = (ARTIFACTS_DIR/ "hyperparameter_search"/ "deep_autoencoder_best_config.json")
 
 
 SEED = 42
 
-
-@dataclass(frozen=True)
-class AutoencoderConfig:
-    """
-    Training and architecture settings for one deep autoencoder.
-    """
-
-    name: str = "default_deep"
-    hidden_dims: tuple[int, ...] = (48, 24)
-    latent_dim: int = 12
-    batch_size: int = 512
-    learning_rate: float = 1e-3
-    weight_decay: float = 0.0
-    max_epochs: int = 50
-    patience: int = 10
-    min_delta: float = 1e-6
-
-
-# Keep these constants for other scripts that only need a default batch size.
-DEFAULT_CONFIG = AutoencoderConfig()
-BATCH_SIZE = DEFAULT_CONFIG.batch_size
+# hyperparams (predefined, matching the architecture documented above)
+HIDDEN_DIMS = (64, 48, 32, 24)
+LATENT_DIM = 16
+BATCH_SIZE = 512
+EPOCHS = 50
+LEARNING_RATE = 1e-3
+WEIGHT_DECAY = 1e-5
+PATIENCE = 8
+MIN_DELTA = 1e-6
 
 
 def DeepAutoencoder(input_dim: int, hidden_dims: tuple[int, ...], latent_dim: int) -> tf.keras.Model:
@@ -72,7 +62,7 @@ def DeepAutoencoder(input_dim: int, hidden_dims: tuple[int, ...], latent_dim: in
     # encoder side
     for hidden_dim in hidden_dims:
         model.add(tf.keras.layers.Dense(hidden_dim, activation="relu"))
-    
+
     model.add(tf.keras.layers.Dense(latent_dim, activation="relu"))  # bottleneck
 
     # decoder side
@@ -81,40 +71,6 @@ def DeepAutoencoder(input_dim: int, hidden_dims: tuple[int, ...], latent_dim: in
     model.add(tf.keras.layers.Dense(input_dim, activation="sigmoid"))  # reconstruction
 
     return model
-
-def config_to_dict(config: AutoencoderConfig) -> dict[str, Any]:
-    """
-    Convert config to JSON
-    """
-    data = asdict(config)
-    data["hidden_dims"] = list(config.hidden_dims)
-    return data
-
-
-def config_from_dict(data: dict[str, Any] | None) -> AutoencoderConfig:
-    """
-    Build an AutoencoderConfig
-    """
-    if not data:
-        return DEFAULT_CONFIG
-
-    values = dict(data)
-    if "hidden_dims" in values:
-        values["hidden_dims"] = tuple(int(value) for value in values["hidden_dims"])
-    return AutoencoderConfig(**values)
-
-
-def load_selected_config() -> AutoencoderConfig:
-    """
-    Load the best hyperparameter config
-    """
-    if not BEST_CONFIG_PATH.exists():
-        return DEFAULT_CONFIG
-
-    with BEST_CONFIG_PATH.open("r", encoding="utf-8") as file:
-        payload = json.load(file)
-
-    return config_from_dict(payload["best_config"])
 
 
 def load_data() -> tuple[np.ndarray, np.ndarray]:
@@ -140,42 +96,41 @@ def save_history(history: list[dict[str, float | int]], history_path: Path) -> N
         writer.writerows(history)
 
 
-def fit_autoencoder(config: AutoencoderConfig,*, save_model_path: Path | None = None,
+def fit_autoencoder(*, save_model_path: Path | None = None,
                     save_history_path: Path | None = None) -> dict[str, Any]:
     """
-    Train one autoencoder configuration with early stopping.
+    Train the predefined deep autoencoder with early stopping.
     """
     # set random seed
     random.seed(SEED)
     np.random.seed(SEED)
     tf.random.set_seed(SEED)
-    
+
     #load the data (train + val)
     x_train, x_validation = load_data()
 
     input_dim = x_train.shape[1]
-    model = DeepAutoencoder(input_dim=input_dim, hidden_dims=config.hidden_dims,
-                             latent_dim=config.latent_dim,)
-    
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=config.learning_rate, weight_decay=config.weight_decay),
+    model = DeepAutoencoder(input_dim=input_dim, hidden_dims=HIDDEN_DIMS, latent_dim=LATENT_DIM)
+
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE, weight_decay=WEIGHT_DECAY),
                  loss = 'mse')
-    
-    early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=config.patience, min_delta=config.min_delta, restore_best_weights=True)
 
-    print(f'Training config: {config.name}')
-    print(f"Architecture: input -> {list(config.hidden_dims)} -> {config.latent_dim}")
+    early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, min_delta=MIN_DELTA, restore_best_weights=True)
 
-    model_history = model.fit(x_train, x_train, 
-                        validation_data=(x_validation, x_validation), 
-                        batch_size=config.batch_size, 
-                        epochs=config.max_epochs, 
+    print(f"Training predefined deep autoencoder")
+    print(f"Architecture: input -> {list(HIDDEN_DIMS)} -> {LATENT_DIM}")
+
+    model_history = model.fit(x_train, x_train,
+                        validation_data=(x_validation, x_validation),
+                        batch_size=BATCH_SIZE,
+                        epochs=EPOCHS,
                         callbacks=[early_stopping], verbose=1)
-    
+
     train_loss = model_history.history['loss']
     val_loss = model_history.history['val_loss']
     best_epoch = int(np.argmin(val_loss)) + 1
     best_validation_loss = float(np.min(val_loss))
-    
+
     history = [
         { "epoch": i + 1, "train_loss": trainLoss, "validation_loss": valLoss, "is_best": None}
         for i, (trainLoss, valLoss) in enumerate(zip(train_loss, val_loss))
@@ -187,7 +142,11 @@ def fit_autoencoder(config: AutoencoderConfig,*, save_model_path: Path | None = 
         with config_path.open("w", encoding="utf-8") as file:
             json.dump({
                 "input_dim": input_dim,
-                "config": config_to_dict(config),
+                "hidden_dims": list(HIDDEN_DIMS),
+                "latent_dim": LATENT_DIM,
+                "batch_size": BATCH_SIZE,
+                "learning_rate": LEARNING_RATE,
+                "weight_decay": WEIGHT_DECAY,
                 "epoch": best_epoch,
                 "validation_loss": best_validation_loss,
                 "epochs_trained": len(history),
@@ -199,7 +158,6 @@ def fit_autoencoder(config: AutoencoderConfig,*, save_model_path: Path | None = 
 
     return {
         "model": model,
-        "config": config,
         "input_dim": input_dim,
         "best_validation_loss": best_validation_loss,
         "best_epoch": best_epoch,
@@ -208,33 +166,11 @@ def fit_autoencoder(config: AutoencoderConfig,*, save_model_path: Path | None = 
     }
 
 
-def load_trained_model(model_path: Path = MODEL_PATH,
-) -> tuple[tf.keras.Model, dict[str, Any], AutoencoderConfig]:
+def train() -> dict[str, Any]:
     """
-    Load the saved final deep model
+    Train and save the deep autoencoder with the predefined architecture.
     """
-    config_path = model_path.with_suffix(".json")
-    with config_path.open("r", encoding="utf-8") as file:
-        checkpoint = json.load(file)
-
-    config = config_from_dict(checkpoint.get("config"))
-
-    model = DeepAutoencoder(
-        input_dim=checkpoint["input_dim"],
-        hidden_dims=config.hidden_dims,
-        latent_dim=config.latent_dim,
-    )
-    model.load_weights(model_path)
-
-    return model, checkpoint, config
-
-
-def train(config: AutoencoderConfig | None = None) -> dict[str, Any]:
-    """
-    Train and save the deep autoencoder
-    """
-    selected_config = config or load_selected_config()
-    result = fit_autoencoder(selected_config, save_model_path=MODEL_PATH, save_history_path=HISTORY_PATH)
+    result = fit_autoencoder(save_model_path=MODEL_PATH, save_history_path=HISTORY_PATH)
     print(f"Model saved")
 
     return result

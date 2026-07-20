@@ -11,8 +11,14 @@ import tensorflow as tf
 from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score, precision_score, recall_score,)
 
 
-from train_final_deep_autoencoder import DATA_PATH, MODEL_PATH, load_trained_model
-
+from train_final_deep_autoencoder import (
+    BATCH_SIZE,
+    DATA_PATH,
+    HIDDEN_DIMS,
+    LATENT_DIM,
+    MODEL_PATH,
+    DeepAutoencoder,
+)
 
 # paths
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -182,9 +188,15 @@ def save_errors(
 
 
 def evaluate() -> None:
-    # Load the final trained autoencoder. The checkpoint stores the selected
-    # architecture, so evaluation always matches the tuned final model.
-    model, checkpoint, config = load_trained_model(MODEL_PATH)
+    # Load the final trained autoencoder directly, same pattern as
+    # evaluate_sparse_autoencoder.py: read input_dim from the saved checkpoint,
+    # rebuild the model with the predefined architecture, then load weights.
+    config_path = MODEL_PATH.with_suffix(".json")
+    with config_path.open("r", encoding="utf-8") as file:
+        checkpoint = json.load(file)
+
+    model = DeepAutoencoder(input_dim=checkpoint["input_dim"], hidden_dims=HIDDEN_DIMS, latent_dim=LATENT_DIM)
+    model.load_weights(MODEL_PATH)
 
     # load calibrated thresholds
     with THRESHOLD_PATH.open("r", encoding="utf-8") as file:
@@ -198,8 +210,8 @@ def evaluate() -> None:
     anomaly_categories = data["anomaly_categories"].astype(str)
 
     # compute reconstruction errors
-    normal_errors = reconstruction_errors(model, x_normal, config.batch_size)
-    anomaly_errors = reconstruction_errors(model, x_anomaly, config.batch_size)
+    normal_errors = reconstruction_errors(model, x_normal, BATCH_SIZE)
+    anomaly_errors = reconstruction_errors(model, x_anomaly, BATCH_SIZE)
 
     scores = np.concatenate([normal_errors, anomaly_errors])
     y_true = np.concatenate(
@@ -214,7 +226,6 @@ def evaluate() -> None:
     primary_result = next(result for result in results if result["threshold_key"] == primary_key)
     output_summary = {
         "model_path": str(MODEL_PATH),
-        "model_config": checkpoint.get("config", {}),
         "threshold_path": str(THRESHOLD_PATH),
         "normal_source": "X_calibration_normal",
         "anomaly_source": "X_anomaly_reference",
