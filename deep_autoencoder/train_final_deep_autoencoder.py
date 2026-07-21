@@ -96,7 +96,7 @@ def save_history(history: list[dict[str, float | int]], history_path: Path) -> N
         writer.writerows(history)
 
 
-def fit_autoencoder(*, save_model_path: Path | None = None,
+def fit_autoencoder(save_model_path: Path | None = None,
                     save_history_path: Path | None = None) -> dict[str, Any]:
     """
     Train the predefined deep autoencoder with early stopping.
@@ -110,12 +110,14 @@ def fit_autoencoder(*, save_model_path: Path | None = None,
     x_train, x_validation = load_data()
 
     input_dim = x_train.shape[1]
-    model = DeepAutoencoder(input_dim=input_dim, hidden_dims=HIDDEN_DIMS, latent_dim=LATENT_DIM)
+    
+    #create the model and compile
+    model = DeepAutoencoder(input_dim=input_dim, hidden_dims=HIDDEN_DIMS, latent_dim=LATENT_DIM) 
 
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE, weight_decay=WEIGHT_DECAY),
                  loss = 'mse')
 
-    early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, min_delta=MIN_DELTA, restore_best_weights=True)
+    early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, min_delta=MIN_DELTA, restore_best_weights=True) #add early stop condition to advoid overfitting
 
     print(f"Training predefined deep autoencoder")
     print(f"Architecture: input -> {list(HIDDEN_DIMS)} -> {LATENT_DIM}")
